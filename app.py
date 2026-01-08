@@ -969,24 +969,32 @@ Shows how confident the model usually is. Connects directly to your Neutral thre
 
 
 # ----------------------------
-# Tab 6: About (human)
+# Tab 6: About
 # ----------------------------
 with tab6:
     st.subheader("About")
 
     st.markdown(
         """
-Hi! I'm **Maria Hadjichristoforou**, a Computer Science student at the **University of Cyprus**.
+Hi! I’m **Maria Hadjichristoforou**, a Computer Science student at the **University of Cyprus**.
 
-I built this project as a practical NLP + ML portfolio piece - not just to train a model, but to **show what it does well, where it fails, and why**.
+I built this project as a hands-on NLP and Machine Learning portfolio piece — not just to train a model, but to **explore how it actually behaves in practice**.  
+I wanted something people could *interact with*, experiment on, and learn from — including where the model succeeds, where it struggles, and why those failures happen.
+
+Instead of treating sentiment analysis as a black box, this demo focuses on:
+- interpretability (what words push a prediction one way or another),
+- uncertainty (when the model *shouldn’t* be confident),
+- and classic limitations of bag-of-words approaches like TF-IDF.
 
 ### Course inspiration
 This project was inspired by my Erasmus course:
 
 - **DS817: Algorithms We Live By**
-- **Prof. Pantelis Pipergias Analytis**
+- Taught by **Prof. Pantelis Pipergias Analytis**  
+  ([LinkedIn](https://www.linkedin.com/in/pantelis-pipergias-analςnalytis-31068146/))
 
-That course made me pay attention to how algorithms behave in real life - *priors, bias, limitations, interpretability*, which is why this demo includes a **Neutral/Uncertain threshold** and a section on the **bag-of-words “bag of holding” effect**.
+The course encouraged us to think critically about algorithms beyond accuracy — how priors, bias, confidence, and design choices affect real-world behavior.  
+That mindset directly shaped this project, especially the **Neutral / Uncertain threshold** and the focus on *why* the model makes certain predictions.
 """
     )
 
