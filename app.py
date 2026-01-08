@@ -372,18 +372,59 @@ def normalize_tokens(text: str):
     # simple tokenization (good enough for the UI)
     return re.findall(r"\b[\w']+\b", text.lower())
 
+def tokenize_for_diff(text: str):
+    # consistent, simple tokens for counting edits
+    return re.findall(r"\b[\w']+\b", text.lower())
 
-def check_challenge(challenge: str, base_label: str, base_conf: float, new_label: str, new_conf: float, edited_text: str, neutral_threshold: float):
+def word_changes_count(a: str, b: str) -> int:
+    """
+    Count token changes by position (simple + good for classroom demos).
+    If lengths differ, extra tokens count as changes.
+    """
+    A = tokenize_for_diff(a)
+    B = tokenize_for_diff(b)
+    n = max(len(A), len(B))
+    changes = 0
+    for i in range(n):
+        wa = A[i] if i < len(A) else None
+        wb = B[i] if i < len(B) else None
+        if wa != wb:
+            changes += 1
+    return changes
+
+def check_challenge(
+    challenge: str,
+    base_text: str,
+    base_label: str,
+    base_conf: float,
+    new_label: str,
+    new_conf: float,
+    edited_text: str,
+    neutral_threshold: float
+):
     if challenge.startswith("Flip"):
-        ok = (new_label != base_label)
-        return ok, "✅ Flipped!" if ok else "Not flipped yet! Try changing a few key words."
+        changes = word_changes_count(base_text, edited_text)
+        flipped = (new_label != base_label)
+        ok = flipped and (changes <= 3)
+
+        if ok:
+            return True, f"✅ Flipped with {changes} word changes (≤ 3)."
+        if not flipped:
+            return False, f"Not flipped yet! Changes used: {changes}/3. Try swapping 1–3 strong sentiment words."
+        return False, f"Flipped, but you used {changes} word changes (> 3). Try again with smaller edits."
+
     if challenge.startswith("Keep the label"):
-        ok = (new_label == base_label) and (new_conf < neutral_threshold)
+        # Make this behave like humans expect: keep POS or NEG, not NEUTRAL baseline
+        if base_label == "NEUTRAL / UNCERTAIN":
+            return False, "Baseline is NEUTRAL/UNCERTAIN. Pick a POSITIVE or NEGATIVE baseline first (Analyze in Tab 1)."
+
+        ok = (new_label == base_label) and (new_conf < neutral_threshold) and (new_label != "NEUTRAL / UNCERTAIN")
         if ok:
             return True, "✅ Same label, but now uncertain (below threshold)."
         if new_label != base_label:
-            return False, "Label changed! Try keeping the sentiment words but add uncertainty (mixed cues)."
-        return False, "Confidence still too high! Try removing strong sentiment words."
+            return False, "Label changed! Try keeping the sentiment direction, but weaken the strong cues."
+        return False, "Confidence still too high! Remove/soften strong sentiment words, or add mixed cues."
+
     if "POSITIVE without" in challenge:
         toks = set(normalize_tokens(edited_text))
         banned_used = toks.intersection(BANNED_POS)
@@ -392,7 +433,8 @@ def check_challenge(challenge: str, base_label: str, base_conf: float, new_label
             return True, "✅ Positive without the obvious positive words."
         if banned_used:
             return False, f"You used banned words: {', '.join(sorted(banned_used))}"
-        return False, "Still not POSITIVE. Try positive cues like 'funny', 'moving', 'recommended', 'rewatch'."
+        return False, "Still not POSITIVE. Try cues like 'enjoyable', 'fun', 'moving', 'worth it', 'rewatch'."
+
     if "NEGATIVE without" in challenge:
         toks = set(normalize_tokens(edited_text))
         banned_used = toks.intersection(BANNED_NEG)
@@ -401,9 +443,9 @@ def check_challenge(challenge: str, base_label: str, base_conf: float, new_label
             return True, "✅ Negative without the obvious negative words."
         if banned_used:
             return False, f"You used banned words: {', '.join(sorted(banned_used))}"
-        return False, "Still not NEGATIVE. Try cues like 'messy', 'predictable', 'cringe', 'wasted'."
-    return False, "Keep experimenting!"
+        return False, "Still not NEGATIVE. Try cues like 'messy', 'predictable', 'cringe', 'wasted', 'dragged'."
 
+    return False, "Keep experimenting!"
 
 # ----------------------------
 # Sidebar
@@ -592,6 +634,8 @@ That can produce confident outputs even when the text doesn't “mean” anythin
             st.session_state["baseline_label"] = label
             st.session_state["baseline_conf"] = conf
             st.session_state["baseline_challenge"] = challenge
+            st.session_state["baseline_model"] = model_choice
+            st.session_state["baseline_threshold"] = float(neutral_threshold)
 
 
 # ----------------------------
@@ -633,10 +677,28 @@ with tab2:
 
         # Mini challenge check (if baseline exists)
         if learning_mode and st.session_state.get("baseline_label") is not None:
+            # Warn if baseline was created under different settings
+            if (st.session_state.get("baseline_model") != model_choice) or (
+                st.session_state.get("baseline_threshold") != float(neutral_threshold)
+            ):
+                st.warning("Baseline was created with a different model/threshold. Re-run Analyze in Tab 1 for a fair challenge.")
+
             base_label = st.session_state.get("baseline_label")
             base_conf = st.session_state.get("baseline_conf", 0.0)
+            base_text_saved = st.session_state.get("baseline_text", base_text)
             challenge = st.session_state.get("baseline_challenge", CHALLENGES[0]) or CHALLENGES[0]
-            ok, msg = check_challenge(challenge, base_label, base_conf, lbl2, c2, edited_text, neutral_threshold)
+
+            ok, msg = check_challenge(
+                challenge=challenge,
+                base_text=base_text_saved,
+                base_label=base_label,
+                base_conf=base_conf,
+                new_label=lbl2,
+                new_conf=c2,
+                edited_text=edited_text,
+                neutral_threshold=neutral_threshold,
+            )
+
             st.markdown("### 🎯 Mini challenge result")
             st.write(f"**Challenge:** {challenge}")
             st.success(msg) if ok else st.warning(msg)
@@ -991,7 +1053,7 @@ This project was inspired by my Erasmus course:
 
 - **DS817: Algorithms We Live By - SDU**
 - Taught by **Prof. Pantelis Pipergias Analytis**  
-  Find him on [LinkedIn](https://www.linkedin.com/in/pantelis-pipergias-analςnalytis-31068146/)
+  Find him on [LinkedIn](https://www.linkedin.com/in/pantelis-pipergias-analytis-31068146/)
 
 """
     )
