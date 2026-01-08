@@ -540,9 +540,10 @@ with tab1:
 
     if learning_mode:
         st.info(
-            "Learning flow: **Pick an example → Analyze → See why → Try the mini challenge**. "
-            "Classic bag-of-words models are fast and surprisingly good, but have fun failure modes."
+            "Learning flow: **Pick an example → Analyze → See why → Go to the 🧪 Playground tab → Try the mini challenge**.\n\n"
+            "Tip: The challenge is checked when you click **Analyze EDITED text** in the Playground."
         )
+
 
     colA, colB = st.columns([2, 1], gap="large")
 
@@ -637,6 +638,12 @@ That can produce confident outputs even when the text doesn't “mean” anythin
             st.session_state["baseline_model"] = model_choice
             st.session_state["baseline_threshold"] = float(neutral_threshold)
 
+            # tell the user what to do next (make it obvious)
+            if learning_mode and challenge:
+                st.success(
+                    f"Baseline saved for the mini challenge ✅  Now open **🧪 Playground** and click **Analyze EDITED text** to check your attempt.\n\n"
+                    f"Challenge: {challenge}"
+                )
 
 # ----------------------------
 # Tab 2: Playground (counterfactuals + negation demo + challenge checker)
@@ -701,7 +708,10 @@ with tab2:
 
             st.markdown("### 🎯 Mini challenge result")
             st.write(f"**Challenge:** {challenge}")
-            st.success(msg) if ok else st.warning(msg)
+            if ok:
+                st.success(msg)
+            else:
+                st.warning(msg)
 
     st.markdown("---")
     st.markdown("### B) Negation demo (classic failure mode)")
