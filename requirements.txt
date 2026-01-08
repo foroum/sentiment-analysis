@@ -1,7 +1,9 @@
+scikit-learn
+joblib
 numpy
 pandas
-scikit-learn
 datasets
-joblib
-datasets
+matplotlib
+jupyter
+streamlit
 nltk

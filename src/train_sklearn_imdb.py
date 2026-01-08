@@ -234,6 +234,20 @@ def main():
     # 6) Save metrics JSON
     save_metrics(results, best_name, args.metrics_path)
 
+    # 7) Also save each model (optional, but enables Model dropdown in Streamlit)
+    name_to_fname = {
+        "logreg": "imdb_logreg.joblib",
+        "naive_bayes": "imdb_naive_bayes.joblib",
+        "linear_svm": "imdb_linear_svm.joblib",
+    }
+
+    for name, info in results.items():
+        fname = name_to_fname.get(name)
+        if fname:
+            path = os.path.join(os.path.dirname(args.model_path), fname)
+            dump(info["pipeline"], path)
+            print(f"Saved {name} pipeline to: {path}")
+
 
 if __name__ == "__main__":
     main()
