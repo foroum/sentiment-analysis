@@ -1036,23 +1036,21 @@ Trade-off between precision and recall.
 Shows how confident the model usually is. Connects directly to your Neutral threshold idea.
 """
             )
-
+    # added so the tab ishidden when no visuals found
     st.markdown("---")
-    with st.expander("Optional: show saved images from /visuals (if you export plots as PNGs)"):
-        cm_png = os.path.join(VISUALS_DIR, "confusion_matrix.png")
-        roc_png = os.path.join(VISUALS_DIR, "roc_curve.png")
-        pr_png = os.path.join(VISUALS_DIR, "pr_curve.png")
+    cm_png = os.path.join(VISUALS_DIR, "confusion_matrix.png")
+    roc_png = os.path.join(VISUALS_DIR, "roc_curve.png")
+    pr_png = os.path.join(VISUALS_DIR, "pr_curve.png")
 
-        cols = st.columns(3)
-        if safe_image(cm_png):
-            cols[0].image(cm_png, caption="Confusion Matrix", use_container_width=True)
-        if safe_image(roc_png):
-            cols[1].image(roc_png, caption="ROC Curve", use_container_width=True)
-        if safe_image(pr_png):
-            cols[2].image(pr_png, caption="Precision–Recall Curve", use_container_width=True)
-        if not (safe_image(cm_png) or safe_image(roc_png) or safe_image(pr_png)):
-            st.caption("No saved images found in /visuals yet. Totally optional.")
-
+    if safe_image(cm_png) or safe_image(roc_png) or safe_image(pr_png):
+        with st.expander("📁 Saved evaluation plots (exported PNGs)"):
+            cols = st.columns(3)
+            if safe_image(cm_png):
+                cols[0].image(cm_png, caption="Confusion Matrix", use_container_width=True)
+            if safe_image(roc_png):
+                cols[1].image(roc_png, caption="ROC Curve", use_container_width=True)
+            if safe_image(pr_png):
+                cols[2].image(pr_png, caption="Precision–Recall Curve", use_container_width=True)
 
 # ----------------------------
 # Tab 6: About
