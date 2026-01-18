@@ -954,6 +954,16 @@ with tab5:
     if compute:
         with st.spinner("Computing graphs…"):
             res = compute_eval_graphs(model, sample_size=sample_size)
+    
+        cm = res["cm"]
+        tn, fp, fn, tp = cm.ravel()
+
+        total = tn + fp + fn + tp
+        acc = (tp + tn) / total if total else 0.0
+        precision_pos = tp / (tp + fp) if (tp + fp) else 0.0
+        recall_pos = tp / (tp + fn) if (tp + fn) else 0.0
+        specificity = tn / (tn + fp) if (tn + fp) else 0.0
+        f1 = (2 * precision_pos * recall_pos / (precision_pos + recall_pos)) if (precision_pos + recall_pos) else 0.0
 
         st.markdown("### Results")
 
@@ -966,15 +976,31 @@ with tab5:
             ax_cm.set_title("Confusion Matrix")
             st.pyplot(fig_cm, clear_figure=True)
         with right:
+            st.markdown("### Confusion Matrix (what each box means)")
+
+            m1, m2, m3, m4 = st.columns(4)
+            m1.metric("True Negatives (TN)", int(tn))
+            m2.metric("False Positives (FP)", int(fp))
+            m3.metric("False Negatives (FN)", int(fn))
+            m4.metric("True Positives (TP)", int(tp))
+
             st.markdown(
                 """
-**What this shows:** how many reviews were classified correctly vs incorrectly.
-
-- **Top-left (NEG→NEG):** correct negatives  
-- **Bottom-right (POS→POS):** correct positives  
-- **Off-diagonals:** mistakes  
-"""
+        **How to read it:**
+        - **TN:** negative review predicted as negative ✅  
+        - **FP:** negative review predicted as positive ❌  
+        - **FN:** positive review predicted as negative ❌  
+        - **TP:** positive review predicted as positive ✅
+        """
             )
+
+            k1, k2, k3, k4, k5 = st.columns(5)
+            k1.metric("Accuracy", f"{acc:.3f}")
+            k2.metric("Precision (POS)", f"{precision_pos:.3f}")
+            k3.metric("Recall (POS)", f"{recall_pos:.3f}")
+            k4.metric("Specificity (NEG)", f"{specificity:.3f}")
+            k5.metric("F1 (POS)", f"{f1:.3f}")
+
 
         st.markdown("---")
 
@@ -990,13 +1016,29 @@ with tab5:
             ax_roc.legend(loc="lower right")
             st.pyplot(fig_roc, clear_figure=True)
         with right:
-            st.markdown(
-                f"""
-**ROC AUC:** `{res['roc_auc']:.3f}`
+            roc_auc = res["roc_auc"]
 
-Shows separation quality across thresholds (closer to top-left = better).
-"""
+            st.markdown("### ROC Curve (what it tells you)")
+            st.markdown(
+                """
+        ROC shows the trade-off between:
+        - **TPR / Recall** (catching positives)
+        - **FPR** (accidentally calling negatives “positive”)
+
+        AUC is a single number summary:
+        - **0.5** ≈ random guessing  
+        - **1.0** = perfect separation
+        """
             )
+
+            if roc_auc >= 0.90:
+                st.success(f"AUC = {roc_auc:.3f} → Very strong separation.")
+            elif roc_auc >= 0.80:
+                st.info(f"AUC = {roc_auc:.3f} → Good separation.")
+            elif roc_auc >= 0.70:
+                st.warning(f"AUC = {roc_auc:.3f} → Moderate separation.")
+            else:
+                st.error(f"AUC = {roc_auc:.3f} → Weak separation (close to random).")
 
         st.markdown("---")
 
@@ -1011,13 +1053,28 @@ Shows separation quality across thresholds (closer to top-left = better).
             ax_pr.legend(loc="lower left")
             st.pyplot(fig_pr, clear_figure=True)
         with right:
-            st.markdown(
-                f"""
-**Average Precision (AP):** `{res['ap']:.3f}`
+            ap = res["ap"]
 
-Trade-off between precision and recall.
-"""
+            st.markdown("### Precision–Recall (when it’s useful)")
+            st.markdown(
+                """
+        Precision–Recall is helpful when:
+        - classes are imbalanced, or
+        - you care about avoiding FP/FN.
+
+        **AP (Average Precision)** summarizes the PR curve:
+        higher is better.
+        """
             )
+
+            if ap >= 0.90:
+                st.success(f"AP = {ap:.3f} → Excellent trade-off.")
+            elif ap >= 0.80:
+                st.info(f"AP = {ap:.3f} → Good trade-off.")
+            elif ap >= 0.70:
+                st.warning(f"AP = {ap:.3f} → Moderate trade-off.")
+            else:
+                st.error(f"AP = {ap:.3f} → Weak trade-off.")
 
         st.markdown("---")
 
@@ -1031,11 +1088,36 @@ Trade-off between precision and recall.
             ax_hist.set_title("Confidence Histogram")
             st.pyplot(fig_hist, clear_figure=True)
         with right:
+            max_conf = res["max_conf"]
+            mean_conf = float(np.mean(max_conf))
+            median_conf = float(np.median(max_conf))
+            low_conf_rate = float(np.mean(max_conf < neutral_threshold))
+
+            st.markdown("### Confidence Histogram (why it matters)")
             st.markdown(
-                """
-Shows how confident the model usually is. Connects directly to your Neutral threshold idea.
-"""
+                f"""
+        This plot shows **how sure the model usually is**.
+
+        Each example gives `[P(NEG), P(POS)]`.  
+        We take **max probability** as “confidence”.
+
+        Your **Neutral threshold** is `{neutral_threshold:.2f}`:
+        below that, the demo would label it **NEUTRAL/UNCERTAIN**.
+        """
             )
+
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Mean confidence", f"{mean_conf:.3f}")
+            c2.metric("Median confidence", f"{median_conf:.3f}")
+            c3.metric(f"Below threshold", f"{low_conf_rate*100:.1f}%")
+
+            if low_conf_rate >= 0.30:
+                st.warning("Many examples fall below the threshold → you'll see lots of NEUTRAL/UNCERTAIN.")
+            elif low_conf_rate >= 0.15:
+                st.info("Some uncertainty → NEUTRAL/UNCERTAIN will show up sometimes (nice for demos).")
+            else:
+                st.success("Model is usually confident → few NEUTRAL/UNCERTAIN cases.")
+
     # added so the tab ishidden when no visuals found
     st.markdown("---")
     cm_png = os.path.join(VISUALS_DIR, "confusion_matrix.png")
