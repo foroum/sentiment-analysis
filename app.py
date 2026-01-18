@@ -17,9 +17,7 @@ from sklearn.metrics import (
     average_precision_score,
 )
 
-# ----------------------------
 # Page config + constants
-# ----------------------------
 st.set_page_config(page_title="Sentiment Analysis Demo", page_icon="🎬", layout="wide")
 
 MODEL_PATH = os.path.join("models", "imdb_best_model.joblib")
@@ -27,7 +25,6 @@ METRICS_JSON = os.path.join("data", "imdb_metrics.json")
 VISUALS_DIR = "visuals"
 MODELS_DIR = "models"
 
-# Optional: if you also save individual models (see training script update below)
 OPTIONAL_MODEL_FILES = {
     "Best (auto)": "imdb_best_model.joblib",
     "LogReg": "imdb_logreg.joblib",
@@ -35,9 +32,7 @@ OPTIONAL_MODEL_FILES = {
     "Linear SVM (calibrated)": "imdb_linear_svm.joblib",
 }
 
-# ----------------------------
 # Example banks (5 per category) + cycling
-# ----------------------------
 EXAMPLE_BANKS = {
     "Sarcasm 🙄": [
         "Wow… what a masterpiece… I totally didn't fall asleep twice 🙄",
@@ -111,9 +106,7 @@ def cycle_example(category: str):
     st.session_state["review_text"] = EXAMPLE_BANKS[category][st.session_state[key]]
 
 
-# ----------------------------
 # Helpers
-# ----------------------------
 @st.cache_resource
 def load_model(path: str):
     if not os.path.exists(path):
@@ -159,60 +152,6 @@ def predict(text: str, model, neutral_threshold: float):
 
     return label, conf, proba
 
-
-# def try_get_linear_weights(pipeline):
-#     """
-#     Try to extract (vectorizer, coef, intercept) for a linear model inside a sklearn Pipeline.
-#     Supports:
-#       - LogisticRegression, LinearSVC (if it exposes coef_)
-#       - CalibratedClassifierCV wrapping a linear estimator (best-effort)
-#     """
-#     try:
-#         tfidf = pipeline.named_steps.get("tfidf", None)
-#         clf = pipeline.named_steps.get("clf", None)
-#     except Exception:
-#         return None
-
-#     if tfidf is None or clf is None:
-#         return None
-
-#     if hasattr(clf, "coef_"):
-#         return tfidf, clf.coef_[0], getattr(clf, "intercept_", None)
-
-#     if hasattr(clf, "calibrated_classifiers_"):
-#         try:
-#             base = clf.calibrated_classifiers_[0].estimator
-#             if hasattr(base, "coef_"):
-#                 return tfidf, base.coef_[0], getattr(base, "intercept_", None)
-#         except Exception:
-#             return None
-
-#     return None
-
-
-# def top_contributing_words(pipeline, text: str, top_k: int = 8):
-#     """
-#     Return top contributing words for POS and NEG for this specific text.
-#     Works only for linear models with coef_.
-#     """
-#     extracted = try_get_linear_weights(pipeline)
-#     if extracted is None:
-#         return None
-
-#     tfidf, coef, _ = extracted
-#     X = tfidf.transform([text])
-#     feature_names = np.array(tfidf.get_feature_names_out())
-
-#     contrib = X.toarray()[0] * coef
-
-#     pos_idx = np.argsort(contrib)[::-1]
-#     neg_idx = np.argsort(contrib)
-
-#     pos_words = [(feature_names[i], float(contrib[i])) for i in pos_idx if contrib[i] > 0][:top_k]
-#     neg_words = [(feature_names[i], float(contrib[i])) for i in neg_idx if contrib[i] < 0][:top_k]
-
-#     return pos_words, neg_words
-
 def get_pipeline_parts(pipeline):
     """Safely get (tfidf, clf) regardless of exact pipeline class."""
     try:
@@ -234,11 +173,10 @@ def extract_linear_coef(pipeline):
     if tfidf is None or clf is None:
         return None
 
-    # Direct linear model
+    # direct linear model
     if hasattr(clf, "coef_"):
         return tfidf, clf.coef_[0]
 
-    # Calibrated wrapper around a linear model (e.g., LinearSVC)
     if hasattr(clf, "calibrated_classifiers_"):
         try:
             base = clf.calibrated_classifiers_[0].estimator
@@ -447,9 +385,7 @@ def check_challenge(
 
     return False, "Keep experimenting!"
 
-# ----------------------------
 # Sidebar
-# ----------------------------
 st.sidebar.title("⚙️ Controls")
 
 # Model choice (if files exist)
@@ -491,10 +427,7 @@ for category in EXAMPLE_BANKS.keys():
 st.sidebar.markdown("---")
 st.sidebar.caption("Tip: Click a category multiple times to cycle through examples.")
 
-
-# ----------------------------
 # Main header
-# ----------------------------
 st.title("🎬 Sentiment Analysis - IMDB Reviews")
 st.write(
     "An interactive demo using **TF-IDF + classic ML** (LogReg / Naive Bayes / calibrated Linear SVM). "
@@ -512,25 +445,19 @@ if model is None:
 
 metrics = load_metrics_json()
 
-
-# ----------------------------
 # Tabs
-# ----------------------------
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
     ["✅ Try it", "🧪 Playground", "🗂️ Dataset explorer", "🧠 How it works", "📊 Evaluation", "ℹ️ About"]
 )
 
 
-# ----------------------------
 # Tab 1: Try it (guided + polished)
-# ----------------------------
 with tab1:
     if "review_text" not in st.session_state:
         st.session_state["review_text"] = ""
 
     st.caption("Click sidebar examples to fill the textbox (each click cycles).")
 
-    # Optional: main-area quick buttons (people notice these more than sidebar)
     st.markdown("**Quick start:**")
     cbtn = st.columns(6)
     keys = list(EXAMPLE_BANKS.keys())
@@ -630,7 +557,7 @@ That can produce confident outputs even when the text doesn't “mean” anythin
 """
                 )
 
-            # Store baseline for Playground tab (challenge checking)
+            # store baseline for Playground tab (challenge checking)
             st.session_state["baseline_text"] = text
             st.session_state["baseline_label"] = label
             st.session_state["baseline_conf"] = conf
@@ -638,16 +565,14 @@ That can produce confident outputs even when the text doesn't “mean” anythin
             st.session_state["baseline_model"] = model_choice
             st.session_state["baseline_threshold"] = float(neutral_threshold)
 
-            # tell the user what to do next (make it obvious)
+            # tell the user what to do next
             if learning_mode and challenge:
                 st.success(
                     f"Baseline saved for the mini challenge ✅  Now open **🧪 Playground** and click **Analyze EDITED text** to check your attempt.\n\n"
                     f"Challenge: {challenge}"
                 )
 
-# ----------------------------
 # Tab 2: Playground (counterfactuals + negation demo + challenge checker)
-# ----------------------------
 with tab2:
     st.subheader("🧪 Playground: learn by changing the input")
 
@@ -682,9 +607,9 @@ with tab2:
         lbl2, c2, p2 = predict(edited_text, model, neutral_threshold)
         st.write("**EDITED**:", label_with_emoji(lbl2), f"(conf={c2:.3f})", f"NEG={float(p2[0]):.3f} POS={float(p2[1]):.3f}")
 
-        # Mini challenge check (if baseline exists)
+        # mini challenge check (if baseline exists)
         if learning_mode and st.session_state.get("baseline_label") is not None:
-            # Warn if baseline was created under different settings
+            # warn if baseline was created under different settings
             if (st.session_state.get("baseline_model") != model_choice) or (
                 st.session_state.get("baseline_threshold") != float(neutral_threshold)
             ):
@@ -735,9 +660,7 @@ with tab2:
     st.caption("Bag-of-words often under-handles negation because the meaning depends on context, not just token presence.")
 
 
-# ----------------------------
 # Tab 3: Dataset explorer (mistakes finder)
-# ----------------------------
 with tab3:
     st.subheader("🗂️ Dataset explorer: browse real IMDB reviews + find model mistakes")
 
@@ -911,10 +834,7 @@ This helps with:
 """
         )
 
-
-# ----------------------------
 # Tab 5: Evaluation (graphs)
-# ----------------------------
 with tab5:
     st.subheader("Model performance & visual diagnostics")
 
@@ -987,10 +907,10 @@ with tab5:
             st.markdown(
                 """
         **How to read it:**
-        - **TN:** negative review predicted as negative ✅  
-        - **FP:** negative review predicted as positive ❌  
-        - **FN:** positive review predicted as negative ❌  
-        - **TP:** positive review predicted as positive ✅
+        - **TN:** negative review predicted as negative
+        - **FP:** negative review predicted as positive
+        - **FN:** positive review predicted as negative
+        - **TP:** positive review predicted as positive
         """
             )
 
@@ -1132,7 +1052,7 @@ with tab5:
             if safe_image(roc_png):
                 cols[1].image(roc_png, caption="ROC Curve", use_container_width=True)
             if safe_image(pr_png):
-                cols[2].image(pr_png, caption="Precision–Recall Curve", use_container_width=True)
+                cols[2].image(pr_png, caption="Precision-Recall Curve", use_container_width=True)
 
 # ----------------------------
 # Tab 6: About
@@ -1142,14 +1062,14 @@ with tab6:
 
     st.markdown(
         """
-Hi! I’m **Maria Hadjichristoforou**, a Computer Science student at the **University of Cyprus**.
+Hi! I'm **Maria Hadjichristoforou**, a Computer Science student at the **University of Cyprus**.
 
 I built this project as a hands-on NLP and Machine Learning project to **explore how it actually behaves in practice**.  
 I wanted something people could *interact with*, experiment on, and learn from. Moreover I wanted to show where the model succeeds, where it struggles, and why those failures happen.
 
 Instead of treating sentiment analysis as a black box, this demo focuses on:
 - interpretability (what words push a prediction one way or another),
-- uncertainty (when the model *shouldn’t* be confident),
+- uncertainty (when the model *shouldn't* be confident),
 - and classic limitations of bag-of-words approaches like TF-IDF.
 
 ### Course inspiration
@@ -1170,4 +1090,4 @@ This project was inspired by my Erasmus course:
 """
     )
 
-st.caption("Made with Streamlit • Classic NLP sentiment analysis demo")
+st.caption("Classic NLP sentiment analysis demo")
