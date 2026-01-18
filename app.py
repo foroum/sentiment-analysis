@@ -754,7 +754,7 @@ with tab3:
         st.session_state["ds_texts"] = texts
         st.session_state["ds_labels"] = labels
 
-        # ✅ IMPORTANT: clear old predictions so shapes don't mismatch
+        # here i clear old predictions so shapes don't mismatch / no error for users
         st.session_state["ds_preds"] = None
         st.session_state["ds_proba_pos"] = None
         st.session_state["ds_preds_cache_key"] = None
@@ -790,6 +790,13 @@ with tab3:
         if preds is None or proba_pos is None:
             st.info("Click **Compute predictions on subset**.")
         else:
+            if preds is None or proba_pos is None:
+                st.info("Click **Compute predictions on subset**.")
+                st.stop()
+
+            if len(preds) != len(labels):
+                st.warning("Subset changed — please click **Compute predictions on subset** again.")
+                st.stop()
             wrong_idx = np.where(preds != labels)[0]
             right_idx = np.where(preds == labels)[0]
 
