@@ -753,7 +753,14 @@ with tab3:
         texts, labels = load_imdb_subset("test", n=n, seed=int(seed))
         st.session_state["ds_texts"] = texts
         st.session_state["ds_labels"] = labels
-        st.success(f"Loaded {len(texts)} examples.")
+
+        # ✅ IMPORTANT: clear old predictions so shapes don't mismatch
+        st.session_state["ds_preds"] = None
+        st.session_state["ds_proba_pos"] = None
+        st.session_state["ds_preds_cache_key"] = None
+
+        st.success(f"Loaded {len(texts)} examples. Now click **Compute predictions on subset**.")
+
 
     texts = st.session_state.get("ds_texts")
     labels = st.session_state.get("ds_labels")
