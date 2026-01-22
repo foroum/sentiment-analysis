@@ -18,7 +18,7 @@ The goal of the project is not only to predict sentiment, but also to **serve as
 - [Notes](#notes)
 - [Author](#author)
 - [License](#license)
-- 
+
 ---
 
 ## Features
@@ -114,5 +114,6 @@ LinkedIn: https://www.linkedin.com/in/mhadjichristoforou/
 This project is licensed under the MIT Licence.
 
 You are free to use, modify, and distribute this software for educational and personal purposes, provided that the original author is credited.
+
 
 
