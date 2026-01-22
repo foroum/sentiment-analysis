@@ -65,14 +65,18 @@ It was developed as a portfolio and learning project inspired by coursework on a
 ---
 
 ## Project Structure
-├── app.py # Streamlit application
-├── src/ # Training and utility code
-├── models/ # Trained models
-├── data/ # Metrics and auxiliary data
-├── notebooks/ # Experiments and exploration
+
+sentiment-analysis/
+├── app.py                  # main Streamlit application
+├── src/                     # training and utility code
+│   ├── train_sklearn_imdb.py
+│   ├── predict_sklearn_cli.py
+│   └── config.py
+├── models/                  # trained models
+├── data/                    # metrics and auxiliary data
+├── notebooks/               # experiments and exploration
 ├── requirements.txt
 └── README.md
-
 
 ---
 
@@ -119,6 +123,7 @@ LinkedIn: https://www.linkedin.com/in/mhadjichristoforou/
 This project is licensed under the MIT Licence.
 
 You are free to use, modify, and distribute this software for educational and personal purposes, provided that the original author is credited.
+
 
 
 
