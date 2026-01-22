@@ -67,7 +67,7 @@ It was developed as a portfolio and learning project inspired by coursework on a
 ## Project Structure
 ├── app.py # Streamlit application
 ├── src/ # Training and utility code
-├── models/ # Trained models (not always committed)
+├── models/ # Trained models
 ├── data/ # Metrics and auxiliary data
 ├── notebooks/ # Experiments and exploration
 ├── requirements.txt
@@ -79,9 +79,11 @@ It was developed as a portfolio and learning project inspired by coursework on a
 ## Running Locally
 
 1. Clone the repository
+
 2. Install dependencies:
    ```bash
    pip install -r requirements.txt
+   
 3. Train models:
    python -m src.train_sklearn_imdb
 
@@ -97,6 +99,7 @@ https://sentiment-analysis-mariah.streamlit.app/
 ---
 
 ## Notes
+
 - This project uses classical NLP methods intentionally, to make model behaviour easier to analyse and explain.
 - Deep learning models were avoided on purpose for interpretability and educational value.
 - Evaluation graphs are computed on subsets of the IMDB test set to keep the app responsive.
@@ -104,16 +107,19 @@ https://sentiment-analysis-mariah.streamlit.app/
 ---
 
 ## Author
+
 Maria Hadjichristoforou
 Computer Science Student, University of Cyprus, January 2026
 LinkedIn: https://www.linkedin.com/in/mhadjichristoforou/
 
---
+---
 
 ## Licence
+
 This project is licensed under the MIT Licence.
 
 You are free to use, modify, and distribute this software for educational and personal purposes, provided that the original author is credited.
+
 
 
 
