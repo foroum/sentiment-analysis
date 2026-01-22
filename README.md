@@ -114,7 +114,9 @@ https://sentiment-analysis-mariah.streamlit.app/
 ## Author
 
 Maria Hadjichristoforou
+
 Computer Science Student, University of Cyprus, January 2026
+
 LinkedIn: https://www.linkedin.com/in/mhadjichristoforou/
 
 ---
@@ -124,6 +126,7 @@ LinkedIn: https://www.linkedin.com/in/mhadjichristoforou/
 This project is licensed under the MIT Licence.
 
 You are free to use, modify, and distribute this software for educational and personal purposes, provided that the original author is credited.
+
 
 
 
