@@ -65,7 +65,7 @@ It was developed as a portfolio and learning project inspired by coursework on a
 ---
 
 ## Project Structure
-
+```bash
 sentiment-analysis/
 ├── app.py                  # main Streamlit application
 ├── src/                     # training and utility code
@@ -77,7 +77,7 @@ sentiment-analysis/
 ├── notebooks/               # experiments and exploration
 ├── requirements.txt
 └── README.md
-
+```
 ---
 
 ## Running Locally
@@ -89,6 +89,7 @@ sentiment-analysis/
    pip install -r requirements.txt
    
 3. Train models:
+   ```bash
    python -m src.train_sklearn_imdb
 
 ---
@@ -123,6 +124,7 @@ LinkedIn: https://www.linkedin.com/in/mhadjichristoforou/
 This project is licensed under the MIT Licence.
 
 You are free to use, modify, and distribute this software for educational and personal purposes, provided that the original author is credited.
+
 
 
 
