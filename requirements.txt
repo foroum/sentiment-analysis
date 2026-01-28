@@ -6,11 +6,9 @@ pandas==2.2.2
 matplotlib==3.9.0
 joblib==1.4.2
 
-scikit-learn==1.7.2
+scikit-learn==1.4.2
 
 datasets==2.20.0
 huggingface_hub==0.24.6
-fsspec==2024.6.1
-aiohttp==3.10.11
 
 nltk==3.9.1
