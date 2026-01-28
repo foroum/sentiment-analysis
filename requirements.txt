@@ -9,3 +9,5 @@ matplotlib
 jupyter
 streamlit
 nltk
+datasets>=2.18.0
+huggingface_hub>=0.20.0
