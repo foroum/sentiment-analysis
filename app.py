@@ -293,7 +293,8 @@ def compute_eval_graphs(_model, sample_size: int = 2000, seed: int = 42):
 
 @st.cache_data
 def load_imdb_subset(split="test", n=2000, seed=42):
-    ds = load_dataset("imdb")
+    # ds = load_dataset("imdb")
+    ds = load_dataset("imdb", download_mode="force_redownload")
     data = ds[split]
     rng = np.random.default_rng(seed)
     idx = rng.choice(len(data), size=min(n, len(data)), replace=False)
