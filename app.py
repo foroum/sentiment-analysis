@@ -416,7 +416,7 @@ neutral_threshold = st.sidebar.slider(
 
 learning_mode = st.sidebar.toggle(
     "🎓 Learning mode",
-    value=True,
+    value=False, # changed starting learning mode off
     help="Adds guided steps + mini challenges for learning / classroom demos."
 )
 
