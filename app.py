@@ -423,9 +423,17 @@ learning_mode = st.sidebar.toggle(
 st.sidebar.markdown("---")
 st.sidebar.subheader("Quick examples (click to cycle)")
 
+# for category in EXAMPLE_BANKS.keys():
+#     st.sidebar.button(
+#         category,
+#         on_click=cycle_example,
+#         args=(category,),
+#         use_container_width=True
+#     )
 for category in EXAMPLE_BANKS.keys():
     st.sidebar.button(
         category,
+        key=f"sidebar_btn_{category}",
         on_click=cycle_example,
         args=(category,),
         use_container_width=True
@@ -474,8 +482,15 @@ with tab1:
     cbtn = st.columns(6)
     keys = list(EXAMPLE_BANKS.keys())
     for i, cat in enumerate(keys[:6]):
-        if cbtn[i].button(cat, use_container_width=True):
+        # if cbtn[i].button(cat, use_container_width=True):
+        #     cycle_example(cat)
+        if cbtn[i].button(
+            cat,
+            key=f"quick_btn_{cat}",
+            use_container_width=True
+        ):
             cycle_example(cat)
+
 
     if learning_mode:
         st.info(
