@@ -445,6 +445,11 @@ if model is None:
 
 metrics = load_metrics_json()
 
+if st.sidebar.button("🧹 Clear cache & reload"):
+    st.cache_data.clear()
+    st.cache_resource.clear()
+    st.rerun()
+
 # Tabs
 tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
     ["✅ Try it", "🧪 Playground", "🗂️ Dataset explorer", "🧠 How it works", "📊 Evaluation", "ℹ️ About"]
