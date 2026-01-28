@@ -257,7 +257,8 @@ def plot_word_contrib(words_scores, title: str):
 
 @st.cache_data
 def compute_eval_graphs(_model, sample_size: int = 2000, seed: int = 42):
-    ds = load_dataset("imdb")
+    # ds = load_dataset("imdb")
+    ds = load_dataset("imdb", revision="main")
     test_texts = ds["test"]["text"]
     test_labels = np.array(ds["test"]["label"])
 
@@ -294,7 +295,13 @@ def compute_eval_graphs(_model, sample_size: int = 2000, seed: int = 42):
 @st.cache_data
 def load_imdb_subset(split="test", n=2000, seed=42):
     # ds = load_dataset("imdb")
-    ds = load_dataset("imdb", download_mode="force_redownload")
+    # ds = load_dataset("imdb", download_mode="force_redownload")
+    try:
+        ds = load_dataset("imdb", revision="main")
+    except Exception as e:
+        st.error("Could not load the IMDB dataset from Hugging Face right now. Please try again later.")
+        st.exception(e)
+        st.stop()
     data = ds[split]
     rng = np.random.default_rng(seed)
     idx = rng.choice(len(data), size=min(n, len(data)), replace=False)
