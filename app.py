@@ -313,7 +313,6 @@ def load_imdb_subset(split="test", n=2000, seed=42):
 def safe_image(path: str):
     return os.path.exists(path)
 
-
 def normalize_tokens(text: str):
     # simple tokenization (good enough for the UI)
     return re.findall(r"\b[\w']+\b", text.lower())
